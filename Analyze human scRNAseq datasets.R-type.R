@@ -143,50 +143,6 @@ VlnPlot(s_df, features = "ISG_score", split.by = "orig.ident", pt.size = 0.2)
 s_df = SetIdent(s_df, value = s_df[["customclassif"]])
 VlnPlot(s_df, features = "ISG_score", split.by = "orig.ident", pt.size = 0.2)
 
-##2-2 cytotoxic signature score
-genes_cytotox = c("PRF1", "GZMH", "GZMB")
-s_df = ScaleData(s_df, assay = "RNA", features = genes_cytotox, do.center = T, do.scale = T)
-s_df@meta.data$cytotox_score = colMeans(s_df[["RNA"]]@scale.data)
-FeaturePlot(s_df, features = "cytotox_score", label = T, reduction = "umap", split.by = "orig.ident", order = T, raster = F, cols = c("honeydew3", "red4"))
-
-# cytotoxic score boxplot comparing three samples
-s_df = ScaleData(s_df, assay = "RNA", features = genes_cytotox, do.center = F, do.scale = T)
-s_df@meta.data$cytotox_score = colMeans(s_df[["RNA"]]@scale.data)
-df = s_df@meta.data %>% select(orig.ident, cytotox_score) %>% mutate(log_cytotox= log10(cytotox_score + 1)) 
-
-my_comparisons <- list( c("1", "2") )
-ggboxplot(df, x = "orig.ident", y = "cytotox_score", ylab = "Normalized cytotoxic score", 
-          color = "orig.ident", palette = c("#F8766D", "#00BA38", "#619CFF"))+
-  stat_compare_means(comparisons = my_comparisons) # Add pairwise comparisons p-value
-
-boxplot(log_cytotox ~ orig.ident, data = df, #ylim=c(-0.15,0.55), #at=c(1.5,2.5), xlim=c(0.8,3.2),
-        col=c("#F8766D", "#00BA38", "#619CFF"),
-        ylab = "Normalized ISG expression level (log10(x+1))",
-        outline = FALSE,     ## avoid double-plotting outliers, if any
-        main = 'Cytotoxic score of the two samples')
-
-##2-3 exhaustion signature score
-genes_exhaustion = c("PDCD1", "CTLA4", "LAG3", "CD160", "TIGHT", "HAVCR2", "CD244")
-s_df = ScaleData(s_df, assay = "RNA", features = genes_exhaustion, do.center = T, do.scale = T)
-s_df@meta.data$exhaustion_score = colMeans(s_df[["RNA"]]@scale.data)
-FeaturePlot(s_df, features = "exhaustion_score", label = T, reduction = "umap", split.by = "orig.ident", order = T, raster = F, cols = c("honeydew3", "red4"))
-
-# exhaustion score boxplot comparing three samples
-s_df = ScaleData(s_df, assay = "RNA", features = genes_exhaustion, do.center = F, do.scale = T)
-s_df@meta.data$exhaustion_score = colMeans(s_df[["RNA"]]@scale.data)
-df = s_df@meta.data %>% select(orig.ident, exhaustion_score) %>% mutate(log_exhaustion= log10(exhaustion_score + 1)) 
-
-my_comparisons <- list( c("1", "2") )
-ggboxplot(df, x = "orig.ident", y = "exhaustion_score", ylab = "Normalized exhaustion score", 
-          color = "orig.ident", palette = c("#F8766D", "#00BA38", "#619CFF"))+
-  stat_compare_means(comparisons = my_comparisons) # Add pairwise comparisons p-value
-
-boxplot(log_exhaustion ~ orig.ident, data = df, #ylim=c(-0.15,0.55), #at=c(1.5,2.5), xlim=c(0.8,3.2),
-        col=c("#F8766D", "#00BA38", "#619CFF"),
-        ylab = "Normalized ISG expression level (log10(x+1))",
-        outline = FALSE,     ## avoid double-plotting outliers, if any
-        main = 'Exhaustion score of the two samples')
-
 ##3## Check on GRN expression split by HCC ISG high and HCC ISG low
 s_df = SetIdent(s_df, value = s_df[["customclassif"]])
 genes_isg = c("IRF7","IFIT1","ISG15","STAT1","IFITM3","IFI44","TGTP1","IFNB1")
@@ -207,34 +163,7 @@ VlnPlot(s_df_hep, features = "ISG_score", pt.size = 0.2, assay = "integrated")
 s_df_hep@meta.data$GRN = s_df_hep@assays$integrated@data[rownames(s_df_hep@assays$integrated@data) %in% "GRN",]
 VlnPlot(s_df_hep, features = "GRN", pt.size = 0, assay = "integrated")
 
-##4## visualize a bubble plot showing all the cell types that were considered by ScType for cluster annotation ##
-# load libraries
-lapply(c("ggraph","igraph","tidyverse", "data.tree"), library, character.only = T)
-
-# prepare edges
-cL_resutls=cL_resutls[order(cL_resutls$cluster),]; edges = cL_resutls; edges$type = paste0(edges$type,"_",edges$cluster); edges$cluster = paste0("cluster ", edges$cluster); edges = edges[,c("cluster", "type")]; colnames(edges) = c("from", "to"); rownames(edges) <- NULL
-
-# prepare nodes
-nodes_lvl1 = sctype_scores[,c("cluster", "ncells")]; nodes_lvl1$cluster = paste0("cluster ", nodes_lvl1$cluster); nodes_lvl1$Colour = "#f1f1ef"; nodes_lvl1$ord = 1; nodes_lvl1$realname = nodes_lvl1$cluster; nodes_lvl1 = as.data.frame(nodes_lvl1); nodes_lvl2 = c(); 
-ccolss= c("#5f75ae","#92bbb8","#64a841","#e5486e","#de8e06","#eccf5a","#b5aa0f","#e4b680","#7ba39d","#b15928","#ffff99", "#6a3d9a","#cab2d6","#ff7f00","#fdbf6f","#e31a1c","#fb9a99","#33a02c","#b2df8a","#1f78b4","#a6cee3")
-for (i in 1:length(unique(cL_resutls$cluster))){
-  dt_tmp = cL_resutls[cL_resutls$cluster == unique(cL_resutls$cluster)[i], ]; nodes_lvl2 = rbind(nodes_lvl2, data.frame(cluster = paste0(dt_tmp$type,"_",dt_tmp$cluster), ncells = dt_tmp$scores, Colour = ccolss[i], ord = 2, realname = dt_tmp$type))
-}
-nodes = rbind(nodes_lvl1, nodes_lvl2); nodes$ncells[nodes$ncells<1] = 1;
-files_db = openxlsx::read.xlsx(db_)[,c("cellName","shortName")]; files_db = unique(files_db); nodes = merge(nodes, files_db, all.x = T, all.y = F, by.x = "realname", by.y = "cellName", sort = F)
-nodes$shortName[is.na(nodes$shortName)] = nodes$realname[is.na(nodes$shortName)]; nodes = nodes[,c("cluster", "ncells", "Colour", "ord", "shortName", "realname")]
-
-mygraph <- graph_from_data_frame(edges, vertices=nodes)
-
-# Make the graph
-gggr<- ggraph(mygraph, layout = 'circlepack', weight=I(ncells)) + 
-  geom_node_circle(aes(filter=ord==1,fill=I("#F5F5F5"), colour=I("#D3D3D3")), alpha=0.9) + geom_node_circle(aes(filter=ord==2,fill=I(Colour), colour=I("#D3D3D3")), alpha=0.9) +
-  theme_void() + geom_node_text(aes(filter=ord==2, label=shortName, colour=I("#ffffff"), fill="white", repel = !1, parse = T, size = I(log(ncells,25)*1.5)))+ geom_node_label(aes(filter=ord==1,  label=shortName, colour=I("#000000"), size = I(3), fill="white", parse = T), repel = !0, segment.linetype="dotted")
-
-scater::multiplot(DimPlot(s_df, reduction = "umap", label = TRUE, repel = TRUE, cols = ccolss), gggr, cols = 2)
-
-
-##5## Basic box plot for GRN and EGFR
+##4## Basic box plot for GRN and EGFR
 library(ggpubr)
 s_df = SetIdent(s_df, value = "customclassif")
 s_df@meta.data$GRN_exp = s_df@assays$integrated@data["GRN", ]
@@ -254,28 +183,6 @@ ggboxplot(df_Hepa, "orig.ident", "GRN_exp",
           color = "orig.ident", palette = c("#F8766D", "#00BA38", "#619CFF"), add = "jitter", shape = "orig.ident")+
   stat_compare_means(comparisons = my_comparisons)
 
-## Use our custom way to calculate log2FC and p value
-s_df_hep = s_df_hep = subset(s_df, idents = "Hepatocytes")
-df = s_df_hep@meta.data
-x=df[df$orig.ident %in% "1",11]
-y=df[df$orig.ident %in% "2",11]
-t.test(y,x)
-wilcox.test(y,x)
-df %>% group_by(orig.ident) %>% summarise(mean=mean(GRN_exp))
-log2(0.445)-log2(0.622)
-s_df_hep = SetIdent(s_df_hep, value = s_df_hep[["orig.ident"]])
-VlnPlot(s_df_hep, features = "GRN", pt.size = 0, assay = "integrated")
-
-s_df_Mac = s_df_Mac = subset(s_df, idents = "Macrophage")
-df = s_df_Mac@meta.data
-x=df[df$orig.ident %in% "1",12]
-y=df[df$orig.ident %in% "2",12]
-t.test(y,x)
-wilcox.test(y,x)
-df %>% group_by(orig.ident) %>% summarise(mean=mean(EGFR_exp))
-log2(0.0450)-log2(0.0764)
-s_df_Mac = SetIdent(s_df_Mac, value = s_df_Mac[["orig.ident"]])
-VlnPlot(s_df_Mac, features = "EGFR", pt.size = 0, assay = "integrated", y.max = 1)
 
 
 ##6## violin plot
