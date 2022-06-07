@@ -8,7 +8,7 @@ File information:
 - cellular communiations using modified nichenetr.R: NicheNet script for cell-cell communication analysis for mouse single cell RNA-Seq data
 
 
-- RNA velocity of only Hepatocyte.ipynb: Python script for RNA velocity analysis
+- RNA velocity of only Hepatocyte.ipynb: Python script for RNA velocity analysis for mouse single cell RNA-Seq data
 
 
 - Analyze human scRNAseq datasets.R: Script for analyzing human single cell RNA-Seq data
