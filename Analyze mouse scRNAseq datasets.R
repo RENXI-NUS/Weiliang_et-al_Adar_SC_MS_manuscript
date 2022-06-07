@@ -17,22 +17,12 @@ library(gplots)
 library(ggplot2)
 
 project_name = "mouse_liver"
-min_cells = 3 #Include features detected in at least this many cells. Will subset the counts matrix as well. 
 min_features = 100 #Include cells where at least this many features are detected.
-max_features = 3100
 min_nFeature_RNA = 100 #nFeature_RNA is the number of genes detected in each cell.
-max_nFeature_RNA = 3100
-#min_genes = 100
-#max_genes = 3100
-min_UMIs = 500
-max_UMIs = 10000
 percent_mito = 20
-percent_ribo = 15
-top_n_features = 20
-n_dims = 15
 
 s_data_list = Read10X(data.dir = paste0("C:/Users/renxi/Downloads/WL_scRNAseq_batch2_enforcing10k/aggregated_filtered_feature_bc_matrix/"))
-s_df <- CreateSeuratObject(counts = s_data_list, project = "mouse_liver")
+s_df <- CreateSeuratObject(counts = s_data_list, project = project_name)
 s_df[["percent.mito"]] = PercentageFeatureSet(s_df, pattern = "^mt-")
 s_df[["percent.ribo"]] = PercentageFeatureSet(s_df, pattern = "^Rp[sl]")
 s_df = subset(s_df, subset = nFeature_RNA >= min_nFeature_RNA & percent.mito <= percent_mito )
