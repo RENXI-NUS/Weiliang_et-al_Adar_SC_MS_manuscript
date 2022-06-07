@@ -85,7 +85,7 @@ clu_markers$cluster = gsub(pattern = "Regulatory T Cell", replacement = "8", clu
 clu_markers$cluster = gsub(pattern = "Stromal Cell", replacement = "9", clu_markers$cluster)
 
 
-library(scCATCH)
+library(scCATCH) ## Using version 2.1
 clu_anno = scCATCH::scCATCH(clu_markers,
                             species = 'Mouse',
                             cancer = NULL,
