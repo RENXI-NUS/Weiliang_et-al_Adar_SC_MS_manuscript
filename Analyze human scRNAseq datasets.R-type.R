@@ -183,8 +183,6 @@ ggboxplot(df_Hepa, "orig.ident", "GRN_exp",
           color = "orig.ident", palette = c("#F8766D", "#00BA38", "#619CFF"), add = "jitter", shape = "orig.ident")+
   stat_compare_means(comparisons = my_comparisons)
 
-
-
-##6## violin plot
+##5## violin plot
 VlnPlot(s_df, features = c("GRN", "EGFR"), split.by = "orig.ident", group.by = "customclassif", pt.size = 0.2, combine = FALSE)
 
