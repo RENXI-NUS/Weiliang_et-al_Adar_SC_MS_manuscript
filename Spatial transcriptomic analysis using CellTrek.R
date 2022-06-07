@@ -5,7 +5,7 @@ library("Seurat")
 library("viridis")
 library("ConsensusClusterPlus")
 
-## 1. read visium ST data -- 57C2
+## 1. read visium ST data -- 57C2 as an example
 visium = Load10X_Spatial(data.dir = "C:/Users/renxi/Desktop/WL analysis/VisiumBatch1(19Nov2021)/output/57C2/", filename = "filtered_feature_bc_matrix.h5", assay = "Spatial", slice = "V10U057", filter.matrix = T, to.upper = F)
 
 visium <- PercentageFeatureSet(visium, "^mt-", col.name = "percent_mito")
@@ -99,4 +99,4 @@ cor_counts = do.call("cbind", lapply(id_list, function(id) {
 }))
 write.table(cor_counts, "C:/Users/renxi/Desktop/WL analysis/CellTrek/newest results/output/cell_type_population_by_cellTrek.txt", row.names = T, col.names = T, sep = '\t')
 
-CellTrek::celltrek_vis(visium_scRNAseq_celltrek_54A@meta.data %>% dplyr::select(coord_x, coord_y, cell_types:id_new), visium_scRNAseq_celltrek_54A@images$V10U054@image, visium_scRNAseq_celltrek_54A@images$V10U054@scale.factors$lowres)
+CellTrek::celltrek_vis(visium_scRNAseq_celltrek_57C2@meta.data %>% dplyr::select(coord_x, coord_y, cell_types:id_new), visium_scRNAseq_celltrek_57C2@images$V10U057@image, visium_scRNAseq_celltrek_57C2@images$V10U057@scale.factors$lowres)
