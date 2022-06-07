@@ -51,7 +51,10 @@ DimPlot(visium_traint, group.by = "type")
 ## 4. Chart single cells to their spatial locations
 visium_scRNAseq_celltrek <- CellTrek::celltrek(st_sc_int=visium_traint, int_assay='traint', sc_data=s_df_for_visium, sc_assay = 'RNA', reduction='pca', intp=T, intp_pnt=5000, intp_lin=F, nPCs=30, ntree=1000,  dist_thresh=0.55, top_spot=5, spot_n=10, repel_r=20, repel_iter=20, keep_model=T)$celltrek
 
-## 5. Interactively visualize the CellTrek result using celltrek_vis
+## 5. Interactively visualize the CellTrek result using celltrek_vis -- 57C2 as an example
+CellTrek::celltrek_vis(visium_scRNAseq_celltrek_57C2@meta.data %>% dplyr::select(coord_x, coord_y, cell_types:id_new), visium_scRNAseq_celltrek_57C2@images$V10U057@image, visium_scRNAseq_celltrek_57C2@images$V10U057@scale.factors$lowres)
+
+## 6. Output the cell type percentages of our nine samples predicted by CellTrek
 visium_scRNAseq_celltrek = readRDS("C:/Users/renxi/Desktop/WL analysis/CellTrek/newest results/output/visium_scRNAseq_celltrek_54A.rds")
 visium_scRNAseq_celltrek$cell_types <- factor(visium_scRNAseq_celltrek@meta.data$cell_types, levels=sort(unique(visium_scRNAseq_celltrek@meta.data$cell_types)))
 visium_scRNAseq_celltrek_54A = visium_scRNAseq_celltrek@meta.data %>% as.data.frame()
@@ -98,5 +101,3 @@ cor_counts = do.call("cbind", lapply(id_list, function(id) {
   mapply(FUN = `/`, list1, list2, SIMPLIFY = FALSE)
 }))
 write.table(cor_counts, "C:/Users/renxi/Desktop/WL analysis/CellTrek/newest results/output/cell_type_population_by_cellTrek.txt", row.names = T, col.names = T, sep = '\t')
-
-CellTrek::celltrek_vis(visium_scRNAseq_celltrek_57C2@meta.data %>% dplyr::select(coord_x, coord_y, cell_types:id_new), visium_scRNAseq_celltrek_57C2@images$V10U057@image, visium_scRNAseq_celltrek_57C2@images$V10U057@scale.factors$lowres)
