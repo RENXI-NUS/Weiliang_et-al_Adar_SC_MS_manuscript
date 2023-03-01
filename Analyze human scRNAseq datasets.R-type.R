@@ -82,7 +82,7 @@ s_df@meta.data$customclassif = gsub(pattern = "Memory B cells", replacement = "B
 s_df@meta.data$customclassif = gsub(pattern = "Myeloid Dendritic cells", replacement = "Dendritic cells", s_df@meta.data$customclassif)
 
 saveRDS(s_df, "C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.sc_type_annotated.from_NGS_portal.rds")
-#saveRDS(s_df, "C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.sc_type_annotated.using individual cell ranger result instead of using the aggregated result from cell ranger.rds")
+
 s_df = readRDS("C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.sc_type_annotated.from_NGS_portal.rds")
 
 # calculate fold change in DEG lists of hepatocytes and macrophage
