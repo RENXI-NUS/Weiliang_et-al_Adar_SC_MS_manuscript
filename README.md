@@ -1,4 +1,4 @@
-# This contains scripts for the computational analyses performed for this manuscript
+# This repository contains scripts for the computational analyses performed for this manuscript
 
 File information:
 
