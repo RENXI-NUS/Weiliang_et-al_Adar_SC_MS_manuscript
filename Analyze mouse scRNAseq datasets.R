@@ -49,7 +49,7 @@ s_df <- RunPCA(s_df, verbose = FALSE)
 s_df <- RunUMAP(s_df, reduction = "pca", dims = 1:15, min.dist = 0.3, n.neighbors = 30L)
 s_df <- FindNeighbors(s_df, reduction = "pca", dims = 1:15)
 s_df <- FindClusters(s_df, resolution = 0.2, algorithm = 1, random.seed = 42)
-
+saveRDS(object = s_df, file = "C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.rds")
 
 ##Identify cell type markers
 s_df = readRDS("C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.rds")
