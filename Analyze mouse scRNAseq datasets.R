@@ -70,7 +70,6 @@ clu_anno = scCATCH::scCATCH(clu_markers,
 s_df$cell_types = s_df@meta.data$seurat_clusters %>% as.character() %>% data.frame() %>%
   left_join(clu_anno %>% dplyr::select(cluster, cell_type), by = c("." = "cluster")) %>% pull(cell_type)
 #write.delim(clu_anno, "C:/Users/renxi/Desktop/WL analysis/VisiumBatch1(19Nov2021)/scCATCH_marker_gene_annotation.txt")
-# saveRDS(object = s_df, file = "C:/Users/renxi/Desktop/WL analysis/VisiumBatch1(19Nov2021)/s_df_filtered.new.rds")
 
 cell_types_counts = table(s_df$cell_types, s_df$orig.ident) %>%
   format() %>% as.data.frame() %>% rownames_to_column(var = "Cell_Type") %T>%
@@ -83,7 +82,7 @@ s_df@meta.data$cell_types = gsub(pattern = "Hematopoietic Stem Cell", replacemen
 UMAPPlot(s_df, label = T, group.by = "cell_types")
 
 
-##1## Plot heatmap for top 5 DEGs of each clusters
+#1 Plot heatmap for top 5 DEGs of each clusters-------
 #s_df = readRDS(file = "C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.rds")
 s_df = SetIdent(s_df, value = s_df[["seurat_clusters"]])
 clu_markers_merged = left_join(clu_markers, clu_anno, by = "cluster")
@@ -97,7 +96,7 @@ DoHeatmap_plot=DoHeatmap(s_df, features = top5$gene, assay = "RNA")
 dev.off()
 
 
-##2## Louvain clustering of ~30,000 cells from three samples - reassign cell type names based on scCATCH annotation, DEGs and markers
+#2 Louvain clustering of ~30,000 cells from three samples - reassign cell type names based on scCATCH annotation, DEGs and markers-----
 s_df = SetIdent(s_df, value = "seurat_clusters")
 s_df.new.ids<-c("Hepatocyte","Hepatocyte","Hepatocyte","Hepatocyte","CD3+ T cell", "Endothelial Cell", "Macrophage", "Germinal Center B Cell", "Macrophage", "Hepatocyte", "CD8+ T Cell", "Lymphocyte", "Stromal Cell", "Regulatory T Cell")
 names(s_df.new.ids)<-levels(s_df)
@@ -110,7 +109,7 @@ dev.off()
 saveRDS(object = s_df, file = "C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.rds")
 
 
-##3## ISG score
+#3 ISG score-----------
 s_df = readRDS(file = "C:/Users/renxi/Desktop/WL analysis/Wrapping_up_manuscript_WL_requests/s_df.rds")
 
 genes_isg = c("Irf7","Ifit1","Isg15","Stat1","Ifitm3","Ifi44","Tgtp1","Ifnb1")
@@ -128,7 +127,7 @@ FeaturePlot(s_df, features = "ISG_score", label = F, reduction = "umap", split.b
 
 #ggsave(filename = paste0("plots/umap_genes_isg_collapsed_sample.pdf"), plot = plot_genes_isg_collapsed_sample, width = 12, height = 6)
 
-# ISG score boxplot comparing three samples
+##ISG score boxplot comparing three samples--------
 s_df = ScaleData(s_df, assay = "RNA", features = genes_isg, do.center = F, do.scale = T)
 s_df@meta.data$ISG_score = colMeans(s_df[["RNA"]]@scale.data)
 df = s_df@meta.data %>% select(orig.ident, ISG_score) %>% mutate(log_ISG= log10(ISG_score + 1)) 
@@ -145,7 +144,7 @@ boxplot(log_ISG ~ orig.ident, data = df, #ylim=c(-0.15,0.55), #at=c(1.5,2.5), xl
         main = 'ISG score of the three samples')
 
 
-##4## Find the DEGs between samples within one cluster
+#4 Find the DEGs between samples within one cluster-------
 # Save current cluster identites in object@meta.data under 'cell_types'
 # Run only if Seurat::FindClusters() was executed
 s_df_new = SetIdent(s_df, value = s_df[["cell_types"]])
@@ -184,7 +183,7 @@ allmarkers_from_C_compared_to_A <- lapply(levels(s_df_new), function(cluster_nam
 allmarkers_from_C_compared_to_A.merged <- do.call(rbind, allmarkers_from_C_compared_to_A) %T>% write.delim("C:/Users/renxi/Desktop/WL analysis/VisiumBatch1(19Nov2021)/analysis_output/DEG_clusters_from_C_compared_to_A.scCATCH_annotated.cluster11_change_to_lymphcytes.txt")
 
 
-##5## check the two sub-clusters of Macrophage using ToppGene
+#5 check the two sub-clusters of Macrophage using ToppGene---------
 library(data.table)
 s_df_new = s_df
 Idents(s_df_new) = s_df_new$seurat_clusters
@@ -207,7 +206,7 @@ degs %>%
   fwrite('cl6_degs.macrophage.csv')
 
 
-##6## featureplot for certain groups of cell types
+#6 featureplot for certain groups of cell types---------
 s_df_new = SetIdent(s_df, value = s_df[["orig.ident"]])
 highligted_cells1 = WhichCells(object = s_df_new, expression = cell_types == "Macrophage", idents = c("1", "2", "3"))
 highligted_cells2 = WhichCells(object = s_df_new, expression = cell_types == "Hepatocyte", idents = c("1", "2", "3"))
@@ -226,7 +225,7 @@ fix.sc <- scale_color_gradientn( colours = c('gray100', 'red'),  limits = c(1, 3
 p2 <- lapply(p1, function (x) x + fix.sc + xlim(c(-10, 8)) + ylim(c(-10, 15)))
 CombinePlots(p2, ncol = 3)
              
-##7## Basic box plot
+#7 Basic box plot---------
 library(ggpubr)
 s_df = SetIdent(s_df, value = "cell_types")
 s_df@meta.data$Grn_exp = s_df@assays$RNA@counts["Grn", ]
@@ -273,5 +272,5 @@ library(beeswarm)
 beeswarm(Grn_exp ~ orig.ident, data = df_Hepa, #ylim=c(0.69,18),  #at=c(1.5,2.5), xlim=c(0.8,3.2),
          col=c("grey3", "blue2", "purple3"), pch = 16, add = TRUE, spacing = 0.75)
 
-##8## violin plot
+#8 violin plot------
 VlnPlot(s_df, features = c("Grn", "Egfr"), split.by = "orig.ident", group.by = "cell_types", pt.size = 0.2, combine = FALSE)
