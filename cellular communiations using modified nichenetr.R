@@ -96,9 +96,6 @@ background_expressed_genes = expressed_genes_receiver %>% .[. %in% rownames(liga
 ## sender
 sender_celltypes = c("Hepatocyte")
 
-list_expressed_genes_sender = sender_celltypes %>% unique() %>% lapply(get_expressed_genes, s_df_new, 0.10, assay_oi = "integrated") # lapply to get the expressed genes of every sender cell type separately here
-expressed_genes_sender = list_expressed_genes_sender %>% unlist() %>% unique()
-
 
 #2. Define a gene set of interest: these are the genes in the "receiver/target" cell population that are potentially affected by ligands expressed by interacting cells (e.g. genes differentially expressed upon cell-cell interaction)
 seurat_obj_receiver= subset(s_df_new, idents = receiver)
